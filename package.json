@@ -1,0 +1,9 @@
+{
+  "name": "mps-emoji-magnet",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "bot": "node bot/emoji-magnet-bot.js"
+  }
+}

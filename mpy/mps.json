@@ -1,0 +1,14 @@
+{
+  "name": "emoji-magnet",
+  "version": "1.0.1",
+  "description": "Shake a 9x9 emoji into particles and watch it magnetically reform on PixelMug.",
+  "author": "PixelMug",
+  "category": "Game",
+  "dependencies": [
+    { "name": "micropyxel", "version": ">=1.0.0" },
+    { "name": "g_sensor", "version": ">=1.0.0" },
+    { "name": "pixel_dust", "version": ">=1.0.0" },
+    { "name": "audio_service", "version": ">=1.0.0" }
+  ],
+  "date": "2026-09-05"
+}
