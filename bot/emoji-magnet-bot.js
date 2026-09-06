@@ -207,9 +207,13 @@ function sendHelp(ctx) {
 
 function startMarkdown() {
   return [
-    "🧲 **Emoji Magnet**",
+    "# Emoji Magnet",
     "",
-    "Shake the PixelMug to scatter a 9×9 emoji into particles. Put it down and the particles fly back together as a new emoji.",
+    "Discover **3,584** hand-pixelled 9×9 emoji, derived from [PixelTwemojiMC-9](https://github.com/AmberWat/PixelTwemojiMC-9) and Twemoji.",
+    "",
+    "Shake your PixelMug to scatter an emoji into particles. Put it down and they magnetically assemble into a new one.",
+    "",
+    "Found a favorite? While it is still on screen, tap the touch button once to lock it. Tap again to unlock and continue exploring.",
     "",
     "Tap **Open on PixelMug** to install and start it.",
   ].join("\n");
