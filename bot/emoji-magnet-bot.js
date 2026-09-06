@@ -50,7 +50,7 @@ bot.on("message", async (ctx) => {
   }
 
   if (parsed.command === "/startEmojiMagnet") {
-    const keyboard = new InlineKeyboard().text("Open on PixelMug", CALLBACK_OPEN);
+    const keyboard = new InlineKeyboard().text("在 PixelMug 上打开 / Open on PixelMug", CALLBACK_OPEN);
     await ctx.sendKeyboard(startMarkdown(), keyboard, mentionOptions(ctx));
     return;
   }
@@ -87,7 +87,7 @@ bot.on("device_notify", async (ctx) => {
 
     if (event.name === "mpyVmError") {
       finishPendingLaunch(pending);
-      await pending.ctx.sendText(`Emoji Magnet install failed: ${event.params?.value || "unknown error"}`);
+      await pending.ctx.sendText(`Emoji Magnet 安装失败 / installation failed: ${event.params?.value || "unknown error"}`);
       continue;
     }
 
@@ -95,18 +95,18 @@ bot.on("device_notify", async (ctx) => {
     const value = String(event.params?.value || "");
     if (value === READY_EVENT) {
       finishPendingLaunch(pending);
-      await pending.ctx.sendText("Emoji Magnet is running on your PixelMug. ✨");
+      await pending.ctx.sendText("Emoji Magnet 已在你的 PixelMug 上运行。 / Emoji Magnet is running on your PixelMug. ✨");
     } else if (FAILED_EVENTS.has(value)) {
       finishPendingLaunch(pending);
-      await pending.ctx.sendText(`Emoji Magnet failed to start: ${value}`);
+      await pending.ctx.sendText(`Emoji Magnet 启动失败 / failed to start: ${value}`);
     }
   }
 });
 
 await bot.setCommands([
-  { command: "bindPixelMug", description: "Bind PixelMug" },
-  { command: "startEmojiMagnet", description: "Open Emoji Magnet" },
-  { command: "SoundEffect", description: "Configure sound effects" },
+  { command: "bindPixelMug", description: "绑定 PixelMug / Bind PixelMug" },
+  { command: "startEmojiMagnet", description: "打开表情包磁贴 / Open Emoji Magnet" },
+  { command: "SoundEffect", description: "设置音效 / Configure sound effects" },
   { command: "License", description: "Show artwork licenses" },
 ]);
 
@@ -117,7 +117,7 @@ console.log(`MPS launch config: ${mpsLaunchConfig.id}@${mpsLaunchConfig.version}
 
 
 async function openOnPixelMug(ctx) {
-  await ctx.sendText("Opening Emoji Magnet on your PixelMug... ✨");
+  await ctx.sendText("正在 PixelMug 上打开 Emoji Magnet… / Opening Emoji Magnet on your PixelMug… ✨");
   try {
     const responseCtx = await bot.callDevice(
       ctx.chat,
@@ -126,11 +126,11 @@ async function openOnPixelMug(ctx) {
     );
     const code = mpyExecReturnCode(responseCtx.tal?.result);
     if (code === 264) {
-      await ctx.sendText("Emoji Magnet is already running on your PixelMug.");
+      await ctx.sendText("Emoji Magnet 已在你的 PixelMug 上运行。 / Emoji Magnet is already running on your PixelMug.");
       return;
     }
     if (![260, 261, 262, 263, 265].includes(code)) {
-      await ctx.sendText(`Could not open Emoji Magnet. Device returned code ${code || "unknown"}.`);
+      await ctx.sendText(`无法打开 Emoji Magnet。设备返回代码：${code || "unknown"}。 / Could not open Emoji Magnet. Device returned code ${code || "unknown"}.`);
       return;
     }
     waitForMpsRunning(ctx, deviceKeyFromResponse(responseCtx));
@@ -139,7 +139,7 @@ async function openOnPixelMug(ctx) {
       await sendBindDevice(ctx);
       return;
     }
-    await ctx.sendText(`Could not open Emoji Magnet: ${errorMessage(error)}`);
+    await ctx.sendText(`无法打开 Emoji Magnet：${errorMessage(error)} / Could not open Emoji Magnet: ${errorMessage(error)}`);
     console.error("[emoji-magnet-bot] launch failed", error);
   }
 }
@@ -158,39 +158,39 @@ async function configureSoundEffect(ctx, enabled) {
     );
     const result = responseCtx.tal?.result;
     if (result === false || result?.return === false) {
-      await ctx.sendText("PixelMug rejected the setting. Start Emoji Magnet first, then try again.");
+      await ctx.sendText("PixelMug 未接受此设置。请先启动 Emoji Magnet 后重试。 / PixelMug rejected the setting. Start Emoji Magnet first, then try again.");
       return;
     }
-    await ctx.sendText(`Emoji Magnet sound effects are now ${enabled ? "on" : "off"}.`);
+    await ctx.sendText(`Emoji Magnet 音效现已${enabled ? "开启" : "关闭"}。 / Emoji Magnet sound effects are now ${enabled ? "on" : "off"}.`);
   } catch (error) {
     if (isNeedBindDeviceError(error)) {
       await sendBindDevice(ctx);
       return;
     }
-    await ctx.sendText(`Could not configure sound effects: ${errorMessage(error)}`);
+    await ctx.sendText(`无法设置音效：${errorMessage(error)} / Could not configure sound effects: ${errorMessage(error)}`);
     console.error("[emoji-magnet-bot] sound config failed", error);
   }
 }
 
 async function sendSoundEffectKeyboard(ctx) {
   const keyboard = new InlineKeyboard()
-    .text("Sound On", CALLBACK_SOUND_ON)
-    .text("Sound Off", CALLBACK_SOUND_OFF);
-  await ctx.sendKeyboard("Choose the Emoji Magnet sound-effect setting.", keyboard, mentionOptions(ctx));
+    .text("开启音效 / Sound On", CALLBACK_SOUND_ON)
+    .text("关闭音效 / Sound Off", CALLBACK_SOUND_OFF);
+  await ctx.sendKeyboard("选择 Emoji Magnet 的音效设置。 / Choose the Emoji Magnet sound-effect setting.", keyboard, mentionOptions(ctx));
 }
 
 function sendIntroduction(ctx, options = {}) {
   return ctx.sendBindDevice({
-    content: "Emoji Magnet turns a 9×9 emoji into colorful particles when you shake your PixelMug, then magnetically assembles a new emoji when the mug becomes still. Bind your PixelMug to begin.",
-    actionButtonTitle: "Bind PixelMug",
+    content: "摇晃 PixelMug，Emoji Magnet 会将 9×9 表情变成彩色粒子；静止后，粒子会磁吸重组成新的表情。绑定 PixelMug 即可开始。\n\nShake your PixelMug to turn a 9×9 emoji into colorful particles. When the mug becomes still, they magnetically assemble into a new emoji. Bind your PixelMug to begin.",
+    actionButtonTitle: "绑定 PixelMug / Bind PixelMug",
     ...options,
   });
 }
 
 function sendBindDevice(ctx) {
   return ctx.sendBindDevice({
-    content: "Bind a PixelMug to use Emoji Magnet.",
-    actionButtonTitle: "Bind PixelMug",
+    content: "请先绑定 PixelMug 以使用 Emoji Magnet。\n\nBind a PixelMug to use Emoji Magnet.",
+    actionButtonTitle: "绑定 PixelMug / Bind PixelMug",
   });
 }
 
@@ -198,24 +198,24 @@ function sendHelp(ctx) {
   return ctx.sendMarkdown([
     "# Emoji Magnet",
     "",
-    "- `/bindPixelMug` — bind your device",
-    "- `/startEmojiMagnet` — install and open the app",
-    "- `/SoundEffect` — turn sound effects on or off",
+    "- `/bindPixelMug` — 绑定设备 / bind your device",
+    "- `/startEmojiMagnet` — 安装并打开应用 / install and open the app",
+    "- `/SoundEffect` — 开启或关闭音效 / turn sound effects on or off",
     "- `/License` — show artwork licenses",
   ].join("\n"), mentionOptions(ctx));
 }
 
 function startMarkdown() {
   return [
-    "# Emoji Magnet",
+    "# Emoji Magnet / 表情包磁贴",
     "",
-    "Discover **3,584** hand-pixelled 9×9 emoji, derived from [PixelTwemojiMC-9](https://github.com/AmberWat/PixelTwemojiMC-9) and Twemoji.",
+    "探索 **3,584** 个手工像素化的 9×9 表情，资源改编自 [PixelTwemojiMC-9](https://github.com/AmberWat/PixelTwemojiMC-9) 和 Twemoji。\n\nDiscover **3,584** hand-pixelled 9×9 emoji, derived from [PixelTwemojiMC-9](https://github.com/AmberWat/PixelTwemojiMC-9) and Twemoji.",
     "",
-    "Shake your PixelMug to scatter an emoji into particles. Put it down and they magnetically assemble into a new one.",
+    "摇晃 PixelMug，让表情散成粒子；放稳后，它们会磁吸组成新的表情。\n\nShake your PixelMug to scatter an emoji into particles. Put it down and they magnetically assemble into a new one.",
     "",
-    "Found a favorite? While it is still on screen, tap the touch button once to lock it. Tap again to unlock and continue exploring.",
+    "喜欢当前表情？在画面静止时单击触摸键即可锁定；再次单击解锁，继续探索。\n\nFound a favorite? While it is still on screen, tap the touch button once to lock it. Tap again to unlock and continue exploring.",
     "",
-    "Tap **Open on PixelMug** to install and start it.",
+    "点击 **在 PixelMug 上打开 / Open on PixelMug** 即可安装并启动。\n\nTap **Open on PixelMug** to install and start it.",
   ].join("\n");
 }
 
@@ -241,7 +241,7 @@ function waitForMpsRunning(ctx, deviceKey) {
     ctx,
     timer: setTimeout(async () => {
       pendingLaunches.delete(key);
-      await ctx.sendText("Still waiting for Emoji Magnet to report ready on your PixelMug...");
+      await ctx.sendText("仍在等待 PixelMug 报告 Emoji Magnet 已就绪… / Still waiting for Emoji Magnet to report ready on your PixelMug…");
     }, OPEN_TIMEOUT_MS),
   };
   if (typeof pending.timer.unref === "function") pending.timer.unref();
