@@ -51,6 +51,8 @@ LOCK_FRAME_RIGHT = EMOJI_ORIGIN_X + EMOJI_WIDTH
 LOCK_FRAME_BOTTOM = EMOJI_ORIGIN_Y + EMOJI_HEIGHT
 SHAKE_THRESHOLD = 0.65
 FORCE_SCALE = 0.16
+SCATTER_BURST_SPEED = 48
+SCATTER_BURST_JITTER = 10
 STILL_THRESHOLD = 0.09
 STILL_TIME_MS = 5000
 MAGNET_PREPARE_MS = 250
@@ -237,10 +239,30 @@ class EmojiMagnetApp:
         pyxel.pset(right, bottom - 1, color)
 
     def _start_scatter(self, motion):
-        # Scatter is released by real gravity only. Clearing velocity avoids
-        # an artificial impulse while high elasticity reveals collisions.
+        # Release the completed emoji with one light, center-outward burst.
+        # After this frame, only physical gravity and collisions apply.
+        center_x = EMOJI_ORIGIN_X + EMOJI_WIDTH // 2
+        center_y = EMOJI_ORIGIN_Y + EMOJI_HEIGHT // 2
         for particle_id in self.particle_ids:
-            self.dust.set_velocity(particle_id, 0, 0)
+            x, y = self.dust.get_position(particle_id)
+            dx = x - center_x
+            dy = y - center_y
+            if dx == 0 and dy == 0:
+                dx = self._randint(-1, 1)
+                dy = self._randint(-1, 1)
+                if dx == 0 and dy == 0:
+                    dx = 1
+
+            # The denominator approximates the radial length without floats,
+            # keeping diagonal particles from receiving a stronger burst.
+            major = max(abs(dx), abs(dy))
+            minor = min(abs(dx), abs(dy))
+            length = major + minor // 2
+            vx = dx * SCATTER_BURST_SPEED // length
+            vy = dy * SCATTER_BURST_SPEED // length
+            vx += self._randint(-SCATTER_BURST_JITTER, SCATTER_BURST_JITTER)
+            vy += self._randint(-SCATTER_BURST_JITTER, SCATTER_BURST_JITTER)
+            self.dust.set_velocity(particle_id, vx, vy)
         self.sound.scatter()
         self.still_started_ms = None
         self._set_state(STATE_PHYSICS)
