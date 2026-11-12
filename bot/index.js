@@ -1,12 +1,11 @@
-import { BubbleBot, InlineKeyboard, isNeedBindDeviceError } from "../../jeejio-bubble/sdk/BubbleSDK.js";
-import PixelMugS1 from "../../jeejio-bubble/devices/ext/PixelMugS1_1.0.ext.js";
-import { apiBaseUrl, token, mpsID, mpsVersion } from "./config.dev.js";
+import { BubbleBot, InlineKeyboard, isNeedBindDeviceError } from "@jeejio-bubble/bot/sdk";
+import PixelMugS1 from "@jeejio-bubble/bot/devices/pixelmug-s1/ext";
 
 const messages = {
   "zh-CN": {
     bindContent: "请先绑定 PixelMug 以使用 Emoji Magnet。",
     bindButton: "绑定 PixelMug",
-    addedIntro: "摇晃 PixelMug，Emoji Magnet 会将 9×9 表情变成彩色粒子；静止后，粒子会磁吸重组成新的表情。绑定 PixelMug 即可开始。",
+    addedIntro: "你好，我是磁吸表情应用智能体。摇晃 PixelMug，Emoji Magnet 会将 9×9 表情变成彩色粒子；静止后，粒子会磁吸重组成新的表情。绑定 PixelMug 即可开始。",
     openButton: "在 PixelMug 上打开",
     intro: "# Emoji Magnet / 表情包磁贴\n\n探索 **3,584** 个手工像素化的 9×9 表情，资源改编自 [PixelTwemojiMC-9](https://github.com/AmberWat/PixelTwemojiMC-9) 和 Twemoji。\n\n摇晃 PixelMug，让表情散成粒子；放稳后，它们会磁吸组成新的表情。\n\n喜欢当前表情？在画面静止时单击触摸键即可锁定；再次单击解锁，继续探索。\n\n点击 **在 PixelMug 上打开** 即可安装并启动。",
     help: "# Emoji Magnet / 表情包磁贴\n\n- `/bindPixelMug` — 绑定设备\n- `/startEmojiMagnet` — 安装并打开应用\n- `/SoundEffect` — 开启或关闭音效\n- `/License` — show artwork licenses",
@@ -31,7 +30,7 @@ const messages = {
   "en-US": {
     bindContent: "Bind a PixelMug to use Emoji Magnet.",
     bindButton: "Bind PixelMug",
-    addedIntro: "Shake your PixelMug to turn a 9×9 emoji into colorful particles. When the mug becomes still, they magnetically assemble into a new emoji. Bind your PixelMug to begin.",
+    addedIntro: "Hi, I am Emoji Magnet. Shake your PixelMug to turn a 9×9 emoji into colorful particles. When the mug becomes still, they magnetically assemble into a new emoji. Bind your PixelMug to begin.",
     openButton: "Open on PixelMug",
     intro: "# Emoji Magnet\n\nDiscover **3,584** hand-pixelled 9×9 emoji, derived from [PixelTwemojiMC-9](https://github.com/AmberWat/PixelTwemojiMC-9) and Twemoji.\n\nShake your PixelMug to scatter an emoji into particles. Put it down and they magnetically assemble into a new one.\n\nFound a favorite? While it is still on screen, tap the touch button once to lock it. Tap again to unlock and continue exploring.\n\nTap **Open on PixelMug** to install and start it.",
     help: "# Emoji Magnet\n\n- `/bindPixelMug` — bind your device\n- `/startEmojiMagnet` — install and open the app\n- `/SoundEffect` — turn sound effects on or off\n- `/License` — show artwork licenses",
@@ -61,16 +60,15 @@ const CALLBACK_SOUND_OFF = "emoji-magnet:sound:off";
 const READY_EVENT = "MPS_IS_RUNNING";
 const FAILED_EVENTS = new Set(["INSTALL_FAIL", "RUNNING_FAIL"]);
 const OPEN_TIMEOUT_MS = Number(process.env.MPS_OPEN_TIMEOUT_MS || 45000);
-const mpsLaunchConfig = { id: mpsID, version: mpsVersion };
+const mpsLaunchConfig = {
+  id: requiredEnv("STUDIO_MPS_ID"),
+  version: requiredEnv("STUDIO_MPS_VERSION"),
+};
 const pendingLaunches = new Map();
 
-if (!token) throw new Error("Missing BUBBLE_BOT_TOKEN.");
-if (!mpsID || !mpsVersion) throw new Error("Missing MPS_ID or MPS_VERSION.");
-
 const pixelMug = new PixelMugS1();
-const bot = new BubbleBot(token, {
-  apiBaseUrl,
-  debug: process.env.DEBUG !== "false",
+const bot = new BubbleBot(requiredEnv("BOT_TOKEN"), {
+  apiBaseUrl: process.env.BOT_API_BASE_URL,
   observeWebAppDeviceCalls: false,
   webAppDeviceAccess: "none",
 });
@@ -285,6 +283,12 @@ function mentionOptions(ctx) {
 function extractCallbackValue(value) {
   if (typeof value === "string") return value;
   return value?.value || value?.data || "";
+}
+
+function requiredEnv(name) {
+  const value = process.env[name];
+  if (!value) throw new Error(`Missing required environment variable: ${name}`);
+  return value;
 }
 
 function mpyExecReturnCode(response) {

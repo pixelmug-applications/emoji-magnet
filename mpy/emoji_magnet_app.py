@@ -142,7 +142,15 @@ class EmojiMagnetApp:
                 g_sensor.deinit()
                 raise RuntimeError("g_sensor not ready")
             time.sleep_ms(50)
-
+        while True:
+            try:
+                g_sensor.get_accel()
+                break
+            except RuntimeError:
+                if time.ticks_diff(deadline, time.ticks_ms()) <= 0:
+                    g_sensor.deinit()
+                    raise RuntimeError("g_sensor data not ready")
+                time.sleep_ms(20)
     def _spawn_initial_emoji(self):
         origin_x, origin_y = self._emoji_origin()
         index = 0

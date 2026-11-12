@@ -1,25 +1,40 @@
-# Emoji Magnet
+﻿# Emoji Magnet
 
-Emoji Magnet is a two-part PixelMug MPS project:
+Emoji Magnet is a PixelMug Studio application that turns 9 x 9 emoji artwork into colorful particles. Shaking the PixelMug scatters the particles; when the device becomes still, they magnetically reform into another emoji.
 
-- `bot/` binds a PixelMug, installs/starts the MPS, and sends sound-effect settings through the device push-message RPC.
-- `mpy/` runs the 81-particle 9×9 emoji interaction. It has no BLE dependency and no webapp.
-
-Bot environment variables:
+This project uses the `04-bot-mpy` shape:
 
 ```text
-BUBBLE_BOT_TOKEN=your-bot-token
-MPS_ID=your-published-mps-id
-MPS_VERSION=1.0.0
+emoji-magnet/
+  bot/        Bot commands and device RPC calls
+  mpy/        MicroPython app and bundled emoji/audio assets
 ```
 
-Optional variables are `BUBBLE_API_BASE_URL`, `DEBUG`, and `MPS_OPEN_TIMEOUT_MS`.
+## Development
 
-Run the bot from this directory with `npm run bot`.
+Install dependencies and run the Bot:
 
-Commands:
+```bash
+npm install
+npm run bot
+```
 
-- `/bindPixelMug`
-- `/startEmojiMagnet`
-- `/configSoundEffect` (or `/config sound effect on|off`)
-- `/license`
+When the project runs in PixelMug Studio, Studio supplies these environment variables:
+
+```text
+BOT_TOKEN
+BOT_API_BASE_URL
+STUDIO_MPS_ID
+STUDIO_MPS_VERSION
+```
+
+The Bot uses the Studio MPS identity to install and start `mpy/` on a bound PixelMug. Do not create a local `config.dev.js` or commit tokens.
+
+Available commands:
+
+- `/bindPixelMug` binds a device.
+- `/startEmojiMagnet` installs and starts Emoji Magnet.
+- `/SoundEffect` configures sound effects.
+- `/License` shows the artwork license.
+
+The MPY manifest is `mpy/mps.json`. Device assets are stored under `mpy/assets/` and use device-relative paths. Runtime sound settings are stored in `emoji_magnet_config.json` on the device.
