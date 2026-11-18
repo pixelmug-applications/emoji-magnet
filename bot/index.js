@@ -252,7 +252,9 @@ function firstPendingLaunch() {
 }
 
 function parseCommand(value) {
-  const match = String(value || "").trim().match(/^\/(\w[\w-]*)(?:@[\w-]+)?(?:\s+(.*))?$/);
+  // Mentions may surround the command or appear before its arguments.
+  const commandText = String(value || "").replace(/(^|\s)@[\w-]+(?=\s|$)/g, "$1").trim();
+  const match = commandText.match(/^\/(\w[\w-]*)(?:@[\w-]+)?(?:\s+(.*))?$/);
   if (!match) return null;
   const known = {
     bindpixelmug: "/bindPixelMug",
